@@ -14,10 +14,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ProductServiceImplementation implements ProductService {
+public class ProductServiceImplementation extends BaseImplementation implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
@@ -42,12 +45,36 @@ public class ProductServiceImplementation implements ProductService {
         return response;
     }
 
+//    @Override
+//    public ProductDTO getById(int id) {
+//        Product product = productRepository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(id)));
+//        return DTOMapper(product);
+//
+//    }
+
     @Override
-    public ProductDTO getById(int id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(id)));
-        return DTOMapper(product);
+    public Map<String, Object> getById(int id) {
+
+        Optional<Product> product;
+        try {
+            product = productRepository.findById(id);
+            if(product == null) {
+                return generateResponse(true, String.format("Cannot find product by id: %s", id));
+            }
+
+        }catch (RuntimeException e){
+            return generateResponse(true, e.getMessage());
+        }
+
+        return generateResponse(false, product);
+
     }
+
+
+
+
+
 
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
@@ -65,8 +92,6 @@ public class ProductServiceImplementation implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(id)));
 
         product.setName(dto.getName());
-
-
 
         return DTOMapper(productRepository.save(product));
     }
@@ -89,8 +114,6 @@ public class ProductServiceImplementation implements ProductService {
         return DTO;
     }
 
-    ;
-
     private Product EntityMapper(ProductDTO DTO) {
 
         Product product = new Product();
@@ -99,7 +122,5 @@ public class ProductServiceImplementation implements ProductService {
 
         return product;
     }
-
-    ;
 
 }

@@ -28,7 +28,7 @@ public class Publication extends BaseEntity {
     private String description;
 
     @Column(name = "price", nullable = false)
-    private float price;
+    private float price = 0.0f;
 
     @Column(name = "active", nullable = false)
     private boolean active = true;
@@ -43,7 +43,7 @@ public class Publication extends BaseEntity {
     @JoinColumn(
             name = "user_id",
             foreignKey = @ForeignKey(
-                    foreignKeyDefinition = "foreign key (user_id) references user (user_id)"
+                    foreignKeyDefinition = "foreign key (user_id) references users (id)"
             )
     )
     private User user;

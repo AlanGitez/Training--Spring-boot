@@ -1,10 +1,7 @@
 package com.shop.shop.entities;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 import javax.persistence.*;
@@ -15,6 +12,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "products")
 public class Product extends BaseEntity {
 
@@ -22,9 +20,11 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "description", nullable = false)
+    private String description;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -32,21 +32,21 @@ public class Product extends BaseEntity {
             joinColumns = @JoinColumn(
                     name = "product_id",
                     nullable = true,
-                    foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (product_id) references products (product_id)")
+                    foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (product_id) references products (id)")
             ),
             inverseJoinColumns = @JoinColumn(
                     name = "category_id",
                     nullable = false,
-                    foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (category_id) references categories (category_id)")
+                    foreignKey = @ForeignKey(foreignKeyDefinition = "foreign key (category_id) references categories (id)")
             )
     )
     private List<Categories> categories;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "publication_id",
             foreignKey = @ForeignKey(
-                    foreignKeyDefinition = "foreign key (publication_id) references publications (publication_id)"
+                    foreignKeyDefinition = "foreign key (publication_id) references publications (id)"
             )
     )
     private Publication publication;
