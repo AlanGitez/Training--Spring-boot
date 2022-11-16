@@ -1,6 +1,7 @@
 package com.shop.shop.controllers;
 
 
+import com.shop.shop.configuration.AuthCredentials;
 import com.shop.shop.dto.UserDTO;
 import com.shop.shop.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,4 +27,12 @@ public class UserController {
 
         return new ResponseEntity(response, error ? HttpStatus.BAD_REQUEST : HttpStatus.CREATED);
     }
+
+//    @PostMapping("/login")
+//    private String login(@RequestBody AuthCredentials body){
+//
+//        var response = "login succesfully";
+//
+//        return response;
+//    }
 }

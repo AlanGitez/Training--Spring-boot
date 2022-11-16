@@ -1,12 +1,12 @@
 package com.shop.shop.entities;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "publications")
 public class Publication extends BaseEntity {
 
@@ -36,15 +37,25 @@ public class Publication extends BaseEntity {
     @Column(name = "sold_out", nullable = false)
     private boolean sold_out = false;
 
-    @OneToMany(mappedBy = "publication")
-    private List<Product> products;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "user_id",
-            foreignKey = @ForeignKey(
-                    foreignKeyDefinition = "foreign key (user_id) references users (id)"
-            )
+    @JsonBackReference
+    @OneToMany(
+            mappedBy = "publication",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+//            fetch = FetchType.EAGER
     )
-    private User user;
+    private List<Product> products = new ArrayList<>();
+
+//    @JsonManagedReference
+    @ManyToOne()
+    private User userId;
+
+    public User getUserId(){
+        return this.userId;
+    }
+
+    public void setUserId(User user){
+        this.userId = user;
+    }
+
 }

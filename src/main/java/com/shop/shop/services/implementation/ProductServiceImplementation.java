@@ -6,6 +6,7 @@ import com.shop.shop.entities.Product;
 import com.shop.shop.exceptions.ResourceNotFoundException;
 import com.shop.shop.repository.ProductRepository;
 import com.shop.shop.services.ProductService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,35 +24,27 @@ import java.util.stream.Collectors;
 public class ProductServiceImplementation extends BaseImplementation implements ProductService {
 
     @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
     private ProductRepository productRepository;
 
     @Override
-    public ProductResponse getAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
+    public Map<String, Object> getAll(int pageNumber, int pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         Page<Product> page = productRepository.findAll(pageable);
-//        List<Product> products = page.getContent();
-//
-//        return page.getContent().stream().map(product -> DTOMapper(product)).collect(Collectors.toList());
+
         ProductResponse response = new ProductResponse();
-        response.setContent(page.getContent().stream().map(product -> DTOMapper(product)).collect(Collectors.toList()));
+        response.setContent(page.getContent().stream().map(product -> modelMapper.map(product, ProductDTO.class)).collect(Collectors.toList()));
         response.setPageNumber(page.getNumber());
         response.setPageSize(page.getSize());
         response.setTotalPages(page.getTotalPages());
         response.setTotalElements(page.getTotalElements());
         response.setLast(page.isLast());
-        return response;
+        return generateResponse(false, response);
     }
-
-//    @Override
-//    public ProductDTO getById(int id) {
-//        Product product = productRepository.findById(id)
-//                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(id)));
-//        return DTOMapper(product);
-//
-//    }
 
     @Override
     public Map<String, Object> getById(int id) {
@@ -67,23 +60,21 @@ public class ProductServiceImplementation extends BaseImplementation implements 
             return generateResponse(true, e.getMessage());
         }
 
-        return generateResponse(false, product);
+        return generateResponse(false, modelMapper.map(product, ProductDTO.class));
 
     }
-
-
-
 
 
 
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
 
-        Product product = EntityMapper(productDTO);
+
+        Product product = modelMapper.map(productDTO, Product.class);
 
         Product newProduct = productRepository.save(product);
 
-        return DTOMapper(newProduct);
+        return modelMapper.map(newProduct, ProductDTO.class);
     }
 
     @Override

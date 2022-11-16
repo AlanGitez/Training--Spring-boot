@@ -5,6 +5,8 @@ import com.shop.shop.entities.User;
 import com.shop.shop.repository.UserRepository;
 import com.shop.shop.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.function.EntityResponse;
 
@@ -13,15 +15,18 @@ import java.util.Map;
 @Service
 public class UserServiceImplementation extends BaseImplementation implements UserService {
 
-
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Map<String, Object> addSingle(UserDTO body) {
         User newUser;
         try {
             User user = EntityMapper(body);
+            user.setPassword(passwordEncoder.encode(body.getPassword()));
             newUser = userRepository.save(user);
             if(newUser == null) return generateResponse(true, "Cannot create user with data provided");
 

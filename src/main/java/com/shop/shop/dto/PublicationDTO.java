@@ -2,15 +2,14 @@ package com.shop.shop.dto;
 
 import com.shop.shop.entities.Product;
 import com.shop.shop.entities.User;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class PublicationDTO {
     private int id;
     private String title;
@@ -19,6 +18,15 @@ public class PublicationDTO {
     private boolean active = true;
     private boolean sold_out = false;
     private List<Product> products;
-    private User user;
+    private User userId;
+
+
+    public User getUserId(){
+        return this.userId;
+    }
+
+    public void setUserId(User user){
+        this.userId = user;
+    }
 
 }

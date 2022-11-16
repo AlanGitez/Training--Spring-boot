@@ -1,5 +1,7 @@
 package com.shop.shop.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,11 +31,7 @@ public class User extends BaseEntity{
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(
-            mappedBy = "user",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
-    )
+    @JsonBackReference
+    @OneToMany
     private List<Publication> publications;
 }

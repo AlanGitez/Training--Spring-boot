@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.*;
 
 public interface ProductService {
-    public ProductResponse getAll(int pageNumber, int pageSize, String sortBy, String sortDir);
+    public Map<String, Object> getAll(int pageNumber, int pageSize, String sortBy, String sortDir);
     public Map<String, Object> getById(int id);
     public ProductDTO createProduct(ProductDTO productDTO);
 

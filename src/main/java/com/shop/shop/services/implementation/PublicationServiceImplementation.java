@@ -7,13 +7,18 @@ import com.shop.shop.repository.ProductRepository;
 import com.shop.shop.repository.PublicationRepository;
 import com.shop.shop.repository.UserRepository;
 import com.shop.shop.services.PublicationService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PublicationServiceImplementation extends BaseImplementation implements PublicationService {
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     private PublicationRepository publicationRepository;
@@ -26,7 +31,8 @@ public class PublicationServiceImplementation extends BaseImplementation impleme
 
     @Override
     public Map<String, Object> addSingle(PublicationDTO body, int userId) {
-        Publication publication = EntityMapper(body);
+
+        Publication publication = modelMapper.map(body, Publication.class);
         Publication newPublication;
         try{
             var user = userRepository.findById(userId);
@@ -34,7 +40,7 @@ public class PublicationServiceImplementation extends BaseImplementation impleme
             if (user == null) return generateResponse(true,
                     String.format("User by id: %s not found", userId));
 
-            publication.setUser(user.get());
+            publication.setUserId(user.get());
 
             var products = body.getProducts();
 
@@ -51,36 +57,68 @@ public class PublicationServiceImplementation extends BaseImplementation impleme
             if(newProducts == null) return generateResponse(true,
                     "Cannot create products, bad request");
 
-
         } catch (RuntimeException e){
             return generateResponse(true, e.getMessage());
         }
 
-        return generateResponse(false, DTOMapper(newPublication));
+        var response = modelMapper.map(newPublication, PublicationDTO.class);
+
+        return generateResponse(false, response);
     }
 
     @Override
     public Map<String, Object> getAll() {
+        List<Publication> publications;
+        try{
+            publications = publicationRepository.findAll();
+            if(publications.isEmpty() || publications == null)
+                return generateResponse(true, "Publications not found");
+
+        }catch(RuntimeException e){
+            return generateResponse(true, e.getMessage());
+        }
+        var response = publications.stream().map(publication -> modelMapper.map(publication, PublicationDTO.class)).collect(Collectors.toList());
+        return generateResponse(false, response);
+    }
+    @Override
+    public Map<String, Object> getAllByUserId(int userId) {
+//    return null;
+        List<Publication> publications;
+        try{
+            var user = userRepository.findById(userId).get();
+            publications = publicationRepository.findByUserId(user);
+            System.out.println("publications");
+            System.out.println(publications);
+            if(publications.isEmpty() || publications == null)
+                return  generateResponse(true, "Cannot find publication with id: "+ userId);
+
+        } catch (RuntimeException e){
+            return generateResponse(true, e.getMessage());
+        }
+        var response = publications.stream().map(item -> DTOMapper(item)).collect(Collectors.toList());
+        return generateResponse(false, response);
+    }
+
+    @Override
+    public Map<String, Object> getById(int id) {
+        Publication publication;
+        try{
+            publication = publicationRepository.findById(id).get();
+            if(publication == null) return  generateResponse(true, "Cannot find publication with id: "+ id);
+
+        } catch (RuntimeException e){
+            return generateResponse(true, e.getMessage());
+        }
+        return generateResponse(false, modelMapper.map(publication, PublicationDTO.class));
+    }
+
+    @Override
+    public Map<String, Object> updateById(int id) {
         return null;
     }
 
     @Override
-    public Map<String, Object> getAllByUserId() {
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> getById() {
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> updateById() {
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> deleteById() {
+    public Map<String, Object> deleteById(int id) {
         return null;
     }
 
@@ -92,7 +130,6 @@ public class PublicationServiceImplementation extends BaseImplementation impleme
         DTO.setPrice(publication.getPrice());
         DTO.setActive(publication.isActive());
         DTO.setSold_out(publication.isSold_out());
-
         return DTO;
     }
 
@@ -103,7 +140,6 @@ public class PublicationServiceImplementation extends BaseImplementation impleme
         publication.setPrice(DTO.getPrice());
         publication.setActive(DTO.isActive());
         publication.setSold_out(DTO.isSold_out());
-
         return publication;
     }
 }

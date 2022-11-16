@@ -12,9 +12,9 @@ public interface PublicationService {
     // only available for admins.
     // AdminController file is required for some routes.
     public Map<String, Object> getAll();
-    public Map<String, Object> getAllByUserId();
-    public Map<String, Object> getById();
-    public Map<String, Object> updateById();
-    public Map<String, Object> deleteById();
+    public Map<String, Object> getAllByUserId(int id);
+    public Map<String, Object> getById(int id);
+    public Map<String, Object> updateById(int id);
+    public Map<String, Object> deleteById(int id);
 
 }

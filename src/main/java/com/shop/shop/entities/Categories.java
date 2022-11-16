@@ -26,7 +26,7 @@ public class Categories extends BaseEntity {
     private String name;
 
 
-    @ManyToMany(mappedBy = "categories")
-    private List<Product> products;
+//    @ManyToMany(mappedBy = "categories")
+//    private List<Product> products;
 
 }
